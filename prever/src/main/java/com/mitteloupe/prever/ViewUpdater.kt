@@ -78,7 +78,12 @@ class ViewUpdater {
 
     private fun View.updateOnLayout() = when (this) {
         is ImageView -> updateImageViewOnLayout()
-        else -> println("No stubbing for ${this::class.java.simpleName}")
+        else -> updateXYTranslation()
+    }
+
+    private fun View.updateXYTranslation() {
+        translationX *= Random.nextFloat()
+        translationY *= Random.nextFloat()
     }
 
     private fun TextInputLayout.updateTextInputLayout() {
