@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Prever</string>
+    <string name="icon_description">Icon</string>
+    <string name="banner_description">Banner</string>
 </resources>
