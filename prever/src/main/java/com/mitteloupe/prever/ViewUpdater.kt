@@ -1,5 +1,6 @@
 package com.mitteloupe.prever
 
+import android.content.res.Resources
 import android.graphics.Bitmap
 import android.graphics.BitmapShader
 import android.graphics.Canvas
@@ -30,7 +31,7 @@ import kotlin.random.Random
 private val calendar by lazy { GregorianCalendar() }
 private val dateFormatter by lazy { SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH) }
 
-class ViewUpdater {
+class ViewUpdater(resources: Resources) {
     private val paint by lazy { Paint(Paint.ANTI_ALIAS_FLAG) }
 
     private val titleLoremIpsumGenerator by lazy { getLoremIpsumRandomGen(30, 40) }
@@ -38,6 +39,8 @@ class ViewUpdater {
     private val subtitleLoremIpsumGenerator by lazy { getLoremIpsumRandomGen(60, 100) }
 
     private val blurbLoremIpsumGenerator by lazy { getLoremIpsumRandomGen(200, 400) }
+
+    private val backgroundSize by lazy { resources.getDimensionPixelSize(R.dimen.prever_background_size) }
 
     private fun getLoremIpsumRandomGen(minLength: Int, maxLength: Int) =
         RandomGen.Builder<LoremIpsum>()
@@ -63,7 +66,7 @@ class ViewUpdater {
     }
 
     private fun View.updateBackground() = doIf(background == null) {
-        setCheckerBoardBackground(16)
+        setCheckerBoardBackground(backgroundSize)
     }
 
     private fun View.updatePreMeasure() = when (this) {

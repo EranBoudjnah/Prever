@@ -5,6 +5,9 @@ import android.content.Context
 import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup
+import com.mitteloupe.prever.attributes.applyAttributes
+
+private const val MAXIMUM_LEVELS = 500
 
 class PreverView @JvmOverloads constructor(
     context: Context,
@@ -13,11 +16,34 @@ class PreverView @JvmOverloads constructor(
 ) : View(context, attributeSet, defaultStyleAttribute) {
     private var didPreMeasureViews = false
     private var didUpdateViews = false
-    private val viewUpdater = ViewUpdater()
+    private val viewUpdater = ViewUpdater(resources)
+    private var levels: Int = 0
+    private val topView by lazy {
+        var parentView: View? = this
+        repeat(levels) findParent@{
+            val lastParentView = parentView
+            parentView = parentView?.parent?.let { immediateParent ->
+                if (immediateParent::class.qualifiedName == "com.android.layoutlib.bridge.impl.Layout") {
+                    return@findParent
+                }
+                immediateParent as View
+            }
+            if (parentView == lastParentView) {
+                return@findParent
+            }
+        }
+        parentView ?: throw IllegalStateException("Parent not found.")
+    }
 
     private val isPreMeasureRequested get() = isInEditMode && !didPreMeasureViews
 
     override fun isLayoutRequested() = isInEditMode && !didUpdateViews
+
+    init {
+        attributeSet?.applyAttributes(context, R.styleable.PreverView, defaultStyleAttribute) {
+            levels = getInt(R.styleable.PreverView_levels, MAXIMUM_LEVELS)
+        }
+    }
 
     @SuppressLint("WrongCall")
     override fun layout(l: Int, t: Int, r: Int, b: Int) {
@@ -28,7 +54,8 @@ class PreverView @JvmOverloads constructor(
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         updateViewsPreMeasure()
-        setMeasuredDimension(0, 0)
+        val measureSpec = MeasureSpec.makeMeasureSpec(1, MeasureSpec.EXACTLY)
+        setMeasuredDimension(measureSpec, measureSpec)
     }
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
@@ -40,7 +67,7 @@ class PreverView @JvmOverloads constructor(
         if (!isPreMeasureRequested) return
 
         didPreMeasureViews = true
-        rootView.updateViewsPreMeasure()
+        topView.updateViewsPreMeasure()
     }
 
     private fun View.updateViewsPreMeasure() {
@@ -51,16 +78,16 @@ class PreverView @JvmOverloads constructor(
 
     private fun ViewGroup.updateChildrenPreMeasure() {
         if (this::class.java.simpleName == "TextInputLayout") return
-        for (i in 0 until childCount) {
-            getChildAt(i).updateViewsPreMeasure()
+        repeat(childCount) { index ->
+            getChildAt(index).updateViewsPreMeasure()
         }
     }
 
     private fun updateViewsOnLayout() {
         if (!isLayoutRequested) return
 
-        rootView.updateViewsOnLayout()
-        viewUpdater.updateRootView(parent as View)
+        topView.updateViewsOnLayout()
+        viewUpdater.updateRootView(topView)
     }
 
     private fun View.updateViewsOnLayout() {
@@ -71,8 +98,8 @@ class PreverView @JvmOverloads constructor(
 
     private fun ViewGroup.updateChildrenOnLayout() {
         if (this::class.java.simpleName == "TextInputLayout") return
-        for (i in 0 until childCount) {
-            getChildAt(i).updateViewsOnLayout()
+        repeat(childCount) { index ->
+            getChildAt(index).updateViewsOnLayout()
         }
     }
 }

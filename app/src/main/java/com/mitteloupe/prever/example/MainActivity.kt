@@ -1,7 +1,7 @@
-package com.mitteloupe.prever
+package com.mitteloupe.prever.example
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 
 class MainActivity : AppCompatActivity() {
 
