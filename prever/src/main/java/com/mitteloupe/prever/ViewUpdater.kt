@@ -39,13 +39,12 @@ class ViewUpdater {
 
     private val blurbLoremIpsumGenerator by lazy { getLoremIpsumRandomGen(200, 400) }
 
-    private fun getLoremIpsumRandomGen(minLength: Int, maxLength: Int): RandomGen<LoremIpsum> {
-        return RandomGen.Builder<LoremIpsum>()
+    private fun getLoremIpsumRandomGen(minLength: Int, maxLength: Int) =
+        RandomGen.Builder<LoremIpsum>()
             .ofClass<LoremIpsum>()
             .withField("text")
             .returningLoremIpsum(minLength, maxLength)
             .build()
-    }
 
     fun updateViewPreMeasure(view: View) {
         view.updatePreMeasure()
