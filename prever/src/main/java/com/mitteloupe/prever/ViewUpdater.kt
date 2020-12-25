@@ -42,6 +42,8 @@ class ViewUpdater(resources: Resources) {
 
     private val backgroundSize by lazy { resources.getDimensionPixelSize(R.dimen.prever_background_size) }
 
+    private val borderThickness by lazy { resources.getDimension(R.dimen.prever_border_thickness) }
+
     private fun getLoremIpsumRandomGen(minLength: Int, maxLength: Int) =
         RandomGen.Builder<LoremIpsum>()
             .ofClass<LoremIpsum>()
@@ -130,12 +132,11 @@ class ViewUpdater(resources: Resources) {
         backgroundCanvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), paint)
         paint.apply {
             style = Paint.Style.STROKE
-            strokeWidth = 1f
+            strokeWidth = borderThickness
             color = Color.argb(255, 0x33, 0x33, 0x33)
         }
         backgroundCanvas.drawRect(0f, 0f, width.toFloat() - 1f, height.toFloat() - 1f, paint)
         setBackgroundCompat(BitmapDrawable(resources, backgroundBitmap))
-//        setBackgroundColor(getRandomColor(0x22))
     }
 
     private fun createCheckerBoard(tileSize: Int): Paint {
