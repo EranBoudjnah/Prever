@@ -9,7 +9,7 @@ android {
         minSdkVersion 15
         targetSdkVersion 30
         versionCode 1
-        versionName "1.0.2"
+        versionName "1.0.3"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles 'consumer-rules.pro'
@@ -39,7 +39,7 @@ dependencies {
 ext {
     set("PUBLISH_GROUP_ID", "com.mitteloupe.prever")
     set("PUBLISH_ARTIFACT_ID", "prever")
-    set("PUBLISH_VERSION", "1.0.2")
+    set("PUBLISH_VERSION", "1.0.3")
 }
 
 apply {
