@@ -1,0 +1,81 @@
+apply plugin: 'maven'
+
+def gitUrl = 'https://github.com/EranBoudjnah/Prever.git'
+
+Properties properties = new Properties()
+File propertiesFile = project.rootProject.file("local.properties")
+if (propertiesFile.exists()) {
+	properties.load(propertiesFile.newDataInputStream())
+}
+def pomVersion = project.PUBLISH_VERSION
+def localReleaseDest = "${buildDir}/release/${pomVersion}"
+def ossrhUsername = properties['ossrhUsername']
+def ossrhPassword = properties['ossrhPassword']
+
+println "packageGroup = " + project.PUBLISH_GROUP_ID
+
+nexusStaging {
+	username = "${ossrhUsername}"
+	password = "${ossrhPassword}"
+	packageGroup = project.PUBLISH_GROUP_ID
+}
+
+uploadArchives {
+	repositories.mavenDeployer {
+		pom {
+			project {
+				name project.PUBLISH_ARTIFACT_ID
+				description 'Enrich Android Studio\'s previews.'
+				packaging 'jar'
+				url gitUrl
+				licenses {
+					license {
+						name 'MIT'
+						url 'https://github.com/EranBoudjnah/Prever/blob/master/LICENSE'
+					}
+				}
+				scm {
+					connection gitUrl
+					developerConnection gitUrl
+					url gitUrl
+				}
+				developers {
+					developer {
+						id "EranBoudjnah"
+						name "Eran Boudjnah"
+						email "eranbou+prever@gmail.com"
+					}
+				}
+			}
+			groupId = project.PUBLISH_GROUP_ID
+			artifactId = project.PUBLISH_ARTIFACT_ID
+			version = pomVersion
+		}
+
+		repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+			authentication(userName: ossrhUsername, password: ossrhPassword)
+		}
+		snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+			authentication(userName: ossrhUsername, password: ossrhPassword)
+		}
+
+		repository(url: "file://${localReleaseDest}")
+	}
+}
+
+task zipRelease(type: Zip) {
+	from localReleaseDest
+	setDestinationDirectory buildDir
+	setArchiveFileName "release-${pomVersion}.zip"
+}
+
+task generateRelease {
+	doLast {
+		println "Release ${pomVersion} can be found at ${localReleaseDest}/"
+		println "Release ${pomVersion} zipped can be found ${buildDir}/release-${pomVersion}.zip"
+	}
+}
+
+generateRelease
+		.dependsOn(uploadArchives)
+		.dependsOn(zipRelease)
