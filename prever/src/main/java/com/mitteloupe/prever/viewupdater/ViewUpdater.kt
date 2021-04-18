@@ -1,4 +1,4 @@
-package com.mitteloupe.prever
+package com.mitteloupe.prever.viewupdater
 
 import android.view.View
 

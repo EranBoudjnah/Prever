@@ -6,6 +6,11 @@ import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup
 import com.mitteloupe.prever.attributes.applyAttributes
+import com.mitteloupe.prever.topviewfinder.DebugTopViewFinder
+import com.mitteloupe.prever.topviewfinder.ReleaseTopViewFinder
+import com.mitteloupe.prever.topviewfinder.TopViewFinder
+import com.mitteloupe.prever.viewupdater.DebugViewUpdater
+import com.mitteloupe.prever.viewupdater.ReleaseViewUpdater
 
 private const val MAXIMUM_LEVELS = 500
 
@@ -21,31 +26,23 @@ class PreverView @JvmOverloads constructor(
     } else {
         ReleaseViewUpdater()
     }
-    private var levels: Int = 0
-    private val topView by lazy {
-        var parentView: View? = this
-        repeat(levels) findParent@{
-            val lastParentView = parentView
-            parentView = parentView?.parent?.let { immediateParent ->
-                if (immediateParent::class.qualifiedName == "com.android.layoutlib.bridge.impl.Layout") {
-                    return@findParent
-                }
-                immediateParent as View
-            }
-            if (parentView == lastParentView) {
-                return@findParent
-            }
-        }
-        parentView ?: throw IllegalStateException("Parent not found.")
-    }
+
+    private val topViewFinder: TopViewFinder
 
     private val isPreMeasureRequested get() = isInEditMode && !didPreMeasureViews
 
     override fun isLayoutRequested() = isInEditMode && !didUpdateViews
 
     init {
+        var maximumLevels = 0
         attributeSet?.applyAttributes(context, R.styleable.PreverView, defaultStyleAttribute) {
-            levels = getInt(R.styleable.PreverView_levels, MAXIMUM_LEVELS)
+            maximumLevels = getInt(R.styleable.PreverView_levels, MAXIMUM_LEVELS)
+        }
+
+        topViewFinder = if (isInEditMode) {
+            DebugTopViewFinder(this, maximumLevels)
+        } else {
+            ReleaseTopViewFinder(this)
         }
     }
 
@@ -71,13 +68,16 @@ class PreverView @JvmOverloads constructor(
         if (!isPreMeasureRequested) return
 
         didPreMeasureViews = true
-        topView.updateViewsPreMeasure()
+        topViewFinder.topView?.updateViewsPreMeasure()
     }
 
-    private fun View.updateViewsPreMeasure() {
-        if (this == this@PreverView) return
-        (this as? ViewGroup)?.updateChildrenPreMeasure()
-        viewUpdater.updateViewPreMeasure(this)
+    private fun updateViewsOnLayout() {
+        if (!isLayoutRequested) return
+
+        topViewFinder.topView?.let { topView ->
+            topView.updateViewsOnLayout()
+            viewUpdater.updateRootView(topView)
+        }
     }
 
     private fun ViewGroup.updateChildrenPreMeasure() {
@@ -87,11 +87,10 @@ class PreverView @JvmOverloads constructor(
         }
     }
 
-    private fun updateViewsOnLayout() {
-        if (!isLayoutRequested) return
-
-        topView.updateViewsOnLayout()
-        viewUpdater.updateRootView(topView)
+    private fun View.updateViewsPreMeasure() {
+        if (this == this@PreverView) return
+        (this as? ViewGroup)?.updateChildrenPreMeasure()
+        viewUpdater.updateViewPreMeasure(this)
     }
 
     private fun View.updateViewsOnLayout() {
@@ -107,3 +106,4 @@ class PreverView @JvmOverloads constructor(
         }
     }
 }
+

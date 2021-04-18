@@ -1,4 +1,4 @@
-package com.mitteloupe.prever
+package com.mitteloupe.prever.viewupdater
 
 import android.content.res.Resources
 import android.graphics.Bitmap
@@ -14,6 +14,7 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import com.google.android.material.textfield.TextInputLayout
+import com.mitteloupe.prever.R
 import com.mitteloupe.prever.color.getRandomColor
 import com.mitteloupe.prever.control.doIf
 import com.mitteloupe.prever.string.isBlurb
