@@ -3,6 +3,7 @@
 > A rich preview solution for Android Studio.
 >
 
+[![Version - RandomGenKt](https://img.shields.io/maven-central/v/com.mitteloupe.prever/prever?label=Prever+|+MavenCentral)](https://mvnrepository.com/artifact/com.mitteloupe.prever/prever)
 [![License](https://img.shields.io/github/license/EranBoudjnah/Prever)](https://github.com/EranBoudjnah/Prever/blob/master/LICENSE)
 [![Platform](https://img.shields.io/badge/platform-android-lightgrey)](https://developer.android.com/reference)
 
@@ -14,6 +15,16 @@ Prever will tell you when your layouts have no background set, will show you how
 In run time Prever will have negligible impact on your views.
 
 Prever is short for previewer.
+
+## Install
+
+In your `build.gradle`, add the following:
+
+```groovy
+dependencies {
+    implementation("com.mitteloupe.prever:prever:1.0.3")
+}
+```
 
 ## Usage
 
