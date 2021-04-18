@@ -16,7 +16,11 @@ class PreverView @JvmOverloads constructor(
 ) : View(context, attributeSet, defaultStyleAttribute) {
     private var didPreMeasureViews = false
     private var didUpdateViews = false
-    private val viewUpdater = ViewUpdater(resources)
+    private val viewUpdater = if (isInEditMode) {
+        DebugViewUpdater(resources)
+    } else {
+        ReleaseViewUpdater()
+    }
     private var levels: Int = 0
     private val topView by lazy {
         var parentView: View? = this

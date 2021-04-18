@@ -31,7 +31,7 @@ import kotlin.random.Random
 private val calendar by lazy { GregorianCalendar() }
 private val dateFormatter by lazy { SimpleDateFormat("dd/MM/yyyy", Locale.ENGLISH) }
 
-class ViewUpdater(resources: Resources) {
+class DebugViewUpdater(resources: Resources) : ViewUpdater {
     private val paint by lazy { Paint(Paint.ANTI_ALIAS_FLAG) }
 
     private val titleLoremIpsumGenerator by lazy { getLoremIpsumRandomGen(30, 40) }
@@ -51,15 +51,15 @@ class ViewUpdater(resources: Resources) {
             .returningLoremIpsum(minLength, maxLength)
             .build()
 
-    fun updateViewPreMeasure(view: View) {
+    override fun updateViewPreMeasure(view: View) {
         view.updatePreMeasure()
     }
 
-    fun updateViewOnLayout(view: View) {
+    override fun updateViewOnLayout(view: View) {
         view.updateOnLayout()
     }
 
-    fun updateRootView(rootView: View) {
+    override fun updateRootView(rootView: View) {
         rootView.updateBackground()
     }
 
