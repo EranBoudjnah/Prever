@@ -7,7 +7,9 @@ File propertiesFile = project.rootProject.file("local.properties")
 if (propertiesFile.exists()) {
 	properties.load(propertiesFile.newDataInputStream())
 }
+def pomGroupId = project.PUBLISH_GROUP_ID
 def pomVersion = project.PUBLISH_VERSION
+def pomArtifactId = project.PUBLISH_ARTIFACT_ID
 def localReleaseDest = "${buildDir}/release/${pomVersion}"
 def ossrhUsername = properties['ossrhUsername']
 def ossrhPassword = properties['ossrhPassword']
@@ -24,7 +26,7 @@ uploadArchives {
 	repositories.mavenDeployer {
 		pom {
 			project {
-				name project.PUBLISH_ARTIFACT_ID
+				name pomArtifactId
 				description 'Enrich Android Studio\'s previews.'
 				packaging 'jar'
 				url gitUrl
@@ -47,8 +49,8 @@ uploadArchives {
 					}
 				}
 			}
-			groupId = project.PUBLISH_GROUP_ID
-			artifactId = project.PUBLISH_ARTIFACT_ID
+			groupId = pomGroupId
+			artifactId = pomArtifactId
 			version = pomVersion
 		}
 
@@ -76,6 +78,14 @@ task generateRelease {
 	}
 }
 
+task androidSourcesJar(type: Jar) {
+	classifier = 'sources'
+	baseName = "${pomArtifactId}-${pomVersion}"
+	from android.sourceSets.main.java.srcDirs
+	destinationDir = new File("${localReleaseDest}/" + pomGroupId.replace(".", "/") + "/${pomArtifactId}/${pomVersion}")
+}
+
 generateRelease
+		.dependsOn(androidSourcesJar)
 		.dependsOn(uploadArchives)
 		.dependsOn(zipRelease)
